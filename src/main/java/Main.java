@@ -121,7 +121,7 @@ public class Main {
                     Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                             .setApplicationName(APPLICATION_NAME)
                             .build();
-                    //busca una capeta llamada BotDSicord dentro del drive
+                    //busca una carpeta llamada BotDiscord dentro del drive
                     FileList result = service.files().list()
                             .setQ("name contains 'BotDsicord' and mimeType = 'application/vnd.google-apps.folder'")
                             .setSpaces("drive")
@@ -164,6 +164,20 @@ public class Main {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
+                }
+            }
+
+
+            //si el mensaje es /pdf
+            if("/pdf".equals(message.getContent())){
+                //hace el build de un nuevo servicio autorizado de la API
+                final NetHttpTransport HTTP_TRANSPORT;
+                try {
+                    HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+                    Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                            .setApplicationName(APPLICATION_NAME)
+                            .build();
+
                 }
             }
 
