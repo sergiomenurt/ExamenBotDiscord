@@ -136,7 +136,7 @@ public class Main {
                         System.out.println("Files:");
                         for (com.google.api.services.drive.model.File file : files) {
                             System.out.printf("%s (%s)\n", file.getName(), file.getId());
-                            BotDiscord = file.getId(); //guarda el nombre y el Id de la carpeta en el String dirImagenes
+                            BotDiscord = file.getId(); //guarda el nombre y el Id de la carpeta en el String BotDiscord
                         }
                         //busca la imagen, cuyo nombre contenga vegeta, dentro del directorio encontrado
                         FileList resultImagenes= service.files().list()
@@ -152,7 +152,7 @@ public class Main {
                             for (com.google.api.services.drive.model.File file : filesImagenes) {
                                 System.out.printf("Imagen: %s\n", file.getName());
                                 //guarda el 'stream' dentro del direcotrio aux.jpeg que tiene que existir
-                                OutputStream outputStream = new FileOutputStream("/home/dam1/cod/examen/aux.jpeg");
+                                OutputStream outputStream = new FileOutputStream("/home/dam1/IdeaProjects/ExaamenBotDiscord/aux.jpeg");
                                 service.files().get(file.getId())
                                         .executeMediaAndDownloadTo(outputStream);
                                 outputStream.flush();
@@ -160,6 +160,7 @@ public class Main {
                             }
                         }
                     }
+
                 } catch (GeneralSecurityException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -169,15 +170,70 @@ public class Main {
 
 
             //si el mensaje es /pdf
-            if("/pdf".equals(message.getContent())){
+
+            if("!descarga".equals(message.getContent())){
+
+
                 //hace el build de un nuevo servicio autorizado de la API
+
                 final NetHttpTransport HTTP_TRANSPORT;
                 try {
                     HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
                     Drive service = new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                             .setApplicationName(APPLICATION_NAME)
                             .build();
+                    //busca una carpeta llamada pdfexamen dentro del drive
 
+                    FileList result = service.files().list()
+                            .setQ("name contains 'pdfexamen' and mimeType = 'application/vnd.google-apps.folder'")
+                            .setSpaces("drive")
+                            .setFields("nextPageToken, files(id, name)")
+                            .execute();
+                    List<com.google.api.services.drive.model.File> files = result.getFiles();
+
+                    //si no existe la carpeta nos avisa, saliendo por pantalla No files found
+
+                    if (files == null || files.isEmpty()) {
+                        System.out.println("No files found");
+                    } else {
+
+                        //si la carpeta si existe
+
+                        String pdfexamen = null;
+                        System.out.println("Files:");
+                        for (com.google.api.services.drive.model.File file : files) {
+                            System.out.printf("%s (%s)\n", file.getName(), file.getId());
+                            pdfexamen = file.getId(); //guarda el nombre y el Id de la carpeta en el String pdfexamen
+                        }
+                        //busca el pdf, cuyo nombre contenga pdfCOD, dentro del directorio encontrado
+                        FileList resultpdf = service.files().list()
+                                .setQ("name contains 'pdfCOD' and parents in '" + pdfexamen + "'")
+                                .setSpaces("drive")
+                                .setFields("nextPageToken, files(id, name)")
+                                .execute();
+                        List<com.google.api.services.drive.model.File> filespdf = resultpdf.getFiles();
+
+                        //si no encuentra el documento nos avisa, saliendo por pantalla No file found
+
+                        if(filespdf == null || filespdf.isEmpty())
+                            System.out.println("No file found.");
+                        else{ //si encuentra el archivo
+                            for (com.google.api.services.drive.model.File file : filespdf) {
+                                System.out.printf("File: %s\n", file.getName());
+                                //guarda el 'stream' dentro del directorio pdfexamen.pdf que tiene que existir
+                                OutputStream outputStream = new FileOutputStream("/home/dam1/IdeaProjects/ExaamenBotDiscord/pdfexamen.pdf");
+                                service.files().get(file.getId())
+                                        .executeMediaAndDownloadTo(outputStream);
+                                outputStream.flush();
+                                outputStream.close();
+                            }
+                        }
+                    }
+
+                } catch (GeneralSecurityException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
 
